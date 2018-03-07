@@ -1,3 +1,19 @@
+const template = [
+	"",
+	"                   ",
+	"WWWWW   WWWWWWWWWWW",
+	"WWWWWB  WWWWWWWWWWW",
+	"WWWWW  BWWWWWWWWWWW",
+	"WWW  B B WWWWWWWWWW",
+	"WWW W WW WWWWWWWWWW",
+	"                OOW",
+	"                OOW",
+	"                OOW",
+	"WWWWW     WWWWWWWWW",
+	"WWWWWWWWWWWWWWWWWWW", 
+	"QWWWWWWWWWWWWWWWWWQ"
+];
+
 function start() {
 	const numberOfCols = 20;
 	const numberOfRows = 15;
@@ -9,20 +25,22 @@ function start() {
 	var downPressed = false;
 	var box = document.getElementById("box");
     const map = [
-        "    WWWWW          ",
-        "    WWWWW          ",
-        "    W   W          ",
-        "    WB  W          ",
-        "  WWW  BWW         ",
-        "  W  B B W         ",
-        "WWW W WW W   WWWWWW",
+        "         Q         ",
+        "WWWWWWWWWWWWWWWWWWW",
+        "WWWWW   WWWWWWWWWWW",
+        "WWWWWB  WWWWWWWWWWW",
+        "WWWWW  BWWWWWWWWWWW",
+        "WWW  B B WWWWWWWWWW",
+        "WWW W WW WWWWWWWWWW",
         "W   W WW WWWWW  OOW",
         "W B  B          OOW",
         "WWWWW WWW WSWW  OOW",
         "WWWWW     WWWWWWWWW",
         "WWWWWWWWWWWWWWWWWWW", 
-        "WWWWWWWWWWWWWWWWWWW"
-    ];
+        "QWWWWWWWWWWWWWWWWWQ"
+	];
+	
+
 	
 	const mapLen = map.length;
 	const gameBoard = document.getElementById('container');
@@ -46,9 +64,11 @@ function start() {
 					cell.classList.add('cell');
 				} else if (letter === "S") { //if S give it the id of player
 					cell.setAttribute('id', "player");
+				}else if (letter === "Q") {
+					cell.classList.add('chuck')
 				} else if (letter === "O") {
 					cell.classList.add('emptyStorage') //if O then give it an emply storage container class
-				} else if (letter === 'B') {
+				} else if (letter === "B") {
 					cell.classList.add('boxToMove') //if B it will be a box that players can move around the box to put into storageh containers
 				} else {
 					cell.classList.add('blank');
@@ -70,12 +90,14 @@ function start() {
 			for (i = 0; i < map.length; i++) {
 				let splitRow = map[i].split("");
 				let s = splitRow.indexOf("S");
+				if (s >= 0 && map[i][s+1] == "W") {
+					break;
+				}
 				if (map[i].includes("S") && map[i][s + 1] == " ") {
 					splitRow.splice(s, 1);
 					splitRow.splice((s + 1), 0, "S");
 					let joinRow = splitRow.join('');
 					map[i] = joinRow;
-					let newMap = map;
 				}
 				if (map[i][s + 1] == "B" && map[i][s + 2] !== "W" && map[i][s + 2] !== "B") {
 					splitRow.splice(s, 1, " ");
@@ -84,13 +106,17 @@ function start() {
 					map[i] = joinRow;
 					let newMap = map;
 				}
-				//Making player able to move across storage containers without affecting it, not done
+				//Making player able to move across storage containers without affecting it, *currently dissapears when moved over!*
 				if (map[i][s + 1] == "O") {
 					splitRow.splice(s, 1, " ");
 					splitRow.splice((s + 1), 1, "S");
 					let joinRow = splitRow.join('');
 					map[i] = joinRow;
-					let newMap = map;
+				}
+				if (template[i][s] === "O"){
+					let row = map[i].split("");
+					row[s]="O";
+					map[i]= row.join("");
 				}
 			}
             makeGrid(map);
@@ -100,27 +126,33 @@ function start() {
 			for (i = 0; i < map.length; i++) {
 				let splitRow = map[i].split("");
 				let s = splitRow.indexOf("S");
+				if (s >= 0 && map[i][s-1] == "W") {
+					break;
+				}
 				if (map[i].includes("S") && map[i][s - 1] == " ") {
 					splitRow.splice(s, 1);
 					splitRow.splice((s - 1), 0, "S");
 					let joinRow = splitRow.join('');
 					map[i] = joinRow;
-					let newMap = map;
 				}
 				if (map[i][s - 1] == "B" && map[i][s - 2] !== "W" && map[i][s - 2] !== "B") {
 					splitRow.splice(s, 1, " ");
 					splitRow.splice((s - 2), 2, "B", "S");
 					let joinRow = splitRow.join('');
 					map[i] = joinRow;
-					let newMap = map;
 				}
 				// Making player able to move across storage containers without affecting it, not done
 				if (map[i][s - 1] == "O") {
 					splitRow.splice(s, 1);
 					splitRow.splice((s - 1), 1, "S", " ");
 					let joinRow = splitRow.join('');
+					console.log(joinRow)
 					map[i] = joinRow;
-					let newMap = map;
+				}
+				if (template[i][s] === "O"){
+					let row = map[i].split("");
+					row[s]="O";
+					map[i]= row.join("");
 				}
 			}
 			makeGrid(map);
@@ -133,6 +165,11 @@ function start() {
 					let aboveRow2 = map[i - 2].split('');
 					let splitRow = map[i].split('');
 					let s = splitRow.indexOf("S");
+
+					if (s >= 0 && map[i-1][s] == "W") {
+						break;
+					}
+
 					if (map[i - 1][s] == " " || map[i - 1][s] == "" && map[i - 2][s] !== "W") {
 						splitRow.splice(s, 1, " ");
 						aboveRow.splice((s), 1, "S");
@@ -141,14 +178,7 @@ function start() {
 						let joinRow2 = aboveRow.join('');
 						map[i - 1] = joinRow2;
 						let newMap = map;
-						// Making player able to move across storage containers without affecting it, not done
-						if (map[i - 1][s] == "O") {
-							splitRow.splice(s, 1);
-							aboveRow.splice((s - 1), 1, "S");
-							let joinRow = splitRow.join('');
-							map[i] = joinRow;
-							let newMap = map;
-						}
+
 					} else if (map[i - 1][s] == "B" && map[i - 2][s] !== "W" && map[i - 2][s] !== "B") {
 						splitRow.splice(s, 1, " ");
 						aboveRow.splice(s, 1, "S")
@@ -160,8 +190,22 @@ function start() {
 						map[i - 1] = joinRow2
 						map[i - 2] = joinRow3
 						let newMap = map;
-					} else {
-						let newMap = map;
+					} 
+					
+					// Making player able to move across storage containers without affecting it, not done
+					else if (map[i - 1][s] == "O") {
+						splitRow.splice(s, 1, " ");
+						aboveRow.splice(s, 1, "S");
+						let joinRow = splitRow.join('');
+						joinRow2 = aboveRow.join('');
+						map[i - 1] = joinRow2;
+						map[i]=joinRow;
+
+					}
+					if (template[i][s] === "O"){
+						let row = map[i].split("");
+						row[s]="O";
+						map[i]= row.join("");
 					}
 				}
 			}
@@ -174,6 +218,11 @@ function start() {
 					let underRow = map[i + 1].split('');
 					let splitRow = map[i].split('');
 					let s = splitRow.indexOf("S");
+
+					if (s >= 0 && map[i+1][s] == "W") {
+						break;
+					}
+
 					let underRow2 = map[i + 2].split('');
 					if (map[i + 1][s] == " " || map[i - 1][s] == "" && map[i - 2][s] !== "W") {
 						splitRow.splice(s, 1, " ");
@@ -182,7 +231,8 @@ function start() {
 						map[i] = joinRow;
 						let joinRow2 = underRow.join('');
 						map[i + 1] = joinRow2;
-						let newMap = map;
+
+
 					} else if (map[i + 1][s] == "B" && map[i + 2][s] !== "W" && map[i + 2][s] !== "B") {
 						splitRow.splice(s, 1, " ");
 						underRow.splice(s, 1, "S")
@@ -194,8 +244,19 @@ function start() {
 						map[i + 1] = joinRow2
 						map[i + 2] = joinRow3
 						let newMap = map;
-					} else {
-						let newMap = map;
+					} 						// Making player able to move across storage containers without affecting it, not done
+					else if (map[i + 1][s] == "O") {
+						splitRow.splice(s, 1, " ");
+						underRow.splice(s ,1, "S");
+						let joinRow = splitRow.join('');
+						joinRow2 = underRow.join('');
+						map[i + 1] = joinRow2
+						map[i] = joinRow;
+					}
+					if (template[i][s] === "O"){
+						let row = map[i].split("");
+						row[s]="O";
+						map[i]= row.join("");
 					}
 					break;
 				}
